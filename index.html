@@ -3,244 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survival Night Prototype - 3D Room Fixed</title>
+    <title>Survival Night Prototype - Map Layout & Sensory Update</title>
     <style>
         :root {
-            --bg-dark: #050508;
+            --bg-dark: #0a0a0c;
             --panel-bg: #1e1e24;
             --accent-green: #00ff88;
             --accent-red: #ff3333;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background: radial-gradient(circle at center, #1a1a24 0%, var(--bg-dark) 100%);
             color: #ddd;
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
             overflow: hidden;
             user-select: none;
             height: 100vh;
-            /* The master perspective container for the whole screen */
-            perspective: 900px;
         }
 
         /* --- UI Elements --- */
         #game-ui {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            text-align: right;
-            font-size: 24px;
-            z-index: 100;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-            pointer-events: none; 
+            position: absolute; top: 20px; right: 30px; text-align: right; font-size: 24px;
+            z-index: 100; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); pointer-events: none;
         }
 
         #usage-bar {
-            color: var(--accent-green);
-            text-shadow: 0 0 10px var(--accent-green);
-            transition: color 0.3s, text-shadow 0.3s;
+            color: var(--accent-green); text-shadow: 0 0 10px var(--accent-green); transition: color 0.3s, text-shadow 0.3s;
         }
 
-        /* --- Master 3D Scene --- */
-        #scene {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-            transform-style: preserve-3d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-            box-sizing: border-box;
+        h1 { color: #444; letter-spacing: 5px; text-shadow: 2px 2px 4px #000; text-align: center; pointer-events: none; }
+
+        /* --- The Office (Updated for Panning) --- */
+        #office {
+            display: flex; justify-content: space-between; align-items: center; height: 100vh;
+            width: 120vw; position: relative; left: -10vw; padding: 0 12vw; box-sizing: border-box;
+            transition: transform 0.1s ease-out; will-change: transform;
         }
 
-        /* --- 3D Background Elements --- */
-        .room-plane {
-            position: absolute;
-            width: 200vw;
-            height: 200vh;
-            left: -50vw;
-            pointer-events: none; /* Can never block clicks */
-            z-index: -1; 
-        }
-
-        #ceiling {
-            top: -100vh;
-            transform: rotateX(90deg) translateZ(40vh);
-            background: repeating-linear-gradient(to right, #0a0a0c, #0a0a0c 48px, #000 50px),
-                        repeating-linear-gradient(to bottom, #0a0a0c, #0a0a0c 48px, #000 50px);
-            box-shadow: inset 0 0 300px rgba(0,0,0,1);
-        }
-
-        #floor {
-            bottom: -100vh;
-            transform: rotateX(-90deg) translateZ(40vh);
-            background: repeating-conic-gradient(#111 0% 25%, #050505 0% 50%) 50% / 100px 100px;
-            box-shadow: inset 0 0 400px rgba(0,0,0,1);
-        }
-
-        /* Centered absolutely so it never interferes with panel layout */
-        h1 {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%) translateZ(80px);
-            color: #444;
-            letter-spacing: 5px;
-            text-shadow: 2px 2px 4px #000;
-            pointer-events: none; 
-            margin: 0;
-            z-index: 0;
-        }
-
-        /* --- Interactive Wall Panels --- */
         .door-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 25px;
-            background: linear-gradient(145deg, #2a2a35, #15151a);
-            border-radius: 12px;
-            border: 2px solid #333;
-            transform-style: preserve-3d; 
-            position: relative;
-            z-index: 10; 
+            display: flex; flex-direction: column; gap: 15px; padding: 25px;
+            background: linear-gradient(145deg, #2a2a35, #15151a); border-radius: 12px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.1); border: 1px solid #333; z-index: 10;
         }
 
-        #left-panel {
-            transform: rotateY(35deg);
-            box-shadow: 25px 15px 40px rgba(0,0,0,0.9), inset 5px 0 10px rgba(255,255,255,0.05);
+        /* --- Buttons --- */
+        button {
+            padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; background: linear-gradient(to bottom, #4a4a5a, #2a2a35);
+            color: #aaa; border: none; border-radius: 8px; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
         }
-
-        #right-panel {
-            transform: rotateY(-35deg);
-            box-shadow: -25px 15px 40px rgba(0,0,0,0.9), inset -5px 0 10px rgba(255,255,255,0.05);
-        }
-
-        /* --- Fix: Buttons are flush with walls --- */
-        button.wall-btn {
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            background: linear-gradient(to bottom, #4a4a5a, #2a2a35);
-            color: #aaa;
-            border: none;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
-            position: relative;
-            z-index: 20; /* Ensures buttons are perfectly clickable */
-        }
-
-        /* Safe 2D hover effect */
-        button.wall-btn:hover {
-            transform: scale(1.03); 
-            box-shadow: 0 6px 10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
-            color: #fff;
-        }
-
-        button.wall-btn.active {
-            background: linear-gradient(to bottom, #fff, #ccc);
-            color: #000;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
-        }
-
-        button.wall-btn.active-door {
-            background: linear-gradient(to bottom, var(--accent-red), #aa0000);
-            color: #fff;
-            box-shadow: 0 0 20px rgba(255, 50, 50, 0.5);
-        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2); color: #fff; }
+        button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        button.active { background: linear-gradient(to bottom, #fff, #ccc); color: #000; box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
+        button.active-door { background: linear-gradient(to bottom, var(--accent-red), #aa0000); color: #fff; box-shadow: 0 0 20px rgba(255, 50, 50, 0.5); }
 
         /* --- Doors & Hallways --- */
         .door-way {
-            width: 160px;
-            height: 320px;
-            border-radius: 8px 8px 0 0;
-            position: relative;
-            overflow: hidden;
-            border: 8px solid #0a0a0c;
-            transform: translateZ(-20px);
-            transition: background-color 0.4s ease, box-shadow 0.4s ease;
+            width: 160px; height: 320px; border-radius: 8px 8px 0 0; position: relative; overflow: hidden;
+            border: 6px solid #111; box-shadow: inset 0 0 50px rgba(0,0,0,1); transition: background-color 0.4s ease, box-shadow 0.4s ease;
         }
-
-        .doorway-dark { background-color: #020202; box-shadow: inset 0 0 50px rgba(0,0,0,1); }
-        .doorway-lit { background-color: #444; box-shadow: inset 0 0 60px rgba(255,255,255,0.8); }
-        .doorway-danger { background-color: #3a0a0a; box-shadow: inset 0 0 80px rgba(255,0,0,0.9); }
+        .doorway-dark { background-color: #050505; }
+        .doorway-lit { background-color: #555; box-shadow: inset 0 0 60px rgba(255,255,255,0.8); }
+        .doorway-danger { background-color: #4a1111; box-shadow: inset 0 0 80px rgba(255,0,0,0.9); }
 
         .door {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 0%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 0%;
             background: repeating-linear-gradient(to bottom, #444, #444 15px, #333 15px, #333 30px);
-            border-bottom: 5px solid #222;
-            transition: height 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-            z-index: 10;
+            border-bottom: 5px solid #222; transition: height 0.15s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 10;
         }
-
         .door-enemy {
-            position: absolute;
-            bottom: 20px; left: 30px;
-            width: 100px; height: 100px;
-            background: radial-gradient(circle, #ff5555, #aa0000);
-            color: #000; display: flex; opacity: 0;
-            justify-content: center; align-items: center;
-            font-size: 40px; font-weight: bold;
-            border-radius: 12px; box-shadow: 0 0 30px #ff0000;
-            z-index: 5; transition: opacity 0.3s ease;
+            position: absolute; bottom: 20px; left: 30px; width: 100px; height: 100px;
+            background: radial-gradient(circle, #ff5555, #aa0000); color: #000; display: flex; opacity: 0;
+            justify-content: center; align-items: center; font-size: 40px; font-weight: bold;
+            border-radius: 12px; box-shadow: 0 0 30px #ff0000; z-index: 5; transition: opacity 0.3s ease;
         }
 
         /* --- Camera System --- */
         #camera-monitor {
-            position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: rgba(5, 10, 5, 0.95);
-            display: none; flex-direction: row; z-index: 50;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(5, 10, 5, 0.95); display: none; flex-direction: row; z-index: 50;
         }
-
         #camera-monitor::after {
-            content: " "; display: block; position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: repeating-linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%);
             background-size: 100% 6px; pointer-events: none; z-index: 60;
         }
+        
+        /* New Static Overlay */
+        #camera-static {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-radial-gradient(circle at center, #222 0, #aaa 2px, #fff 3px, #000 4px);
+            opacity: 0; pointer-events: none; z-index: 52; mix-blend-mode: overlay; transition: opacity 0.05s;
+        }
 
         #camera-view-area {
-            flex-grow: 1; position: relative; display: flex;
-            flex-direction: column; justify-content: center; align-items: center;
+            flex-grow: 1; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;
             border-right: 2px solid #222; box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
         }
-
         #camera-title {
-            position: absolute; top: 30px; left: 40px;
-            font-size: 28px; color: #fff; text-shadow: 0 0 10px #fff; letter-spacing: 2px;
+            position: absolute; top: 30px; left: 40px; font-size: 28px; color: #fff; text-shadow: 0 0 10px #fff; letter-spacing: 2px;
         }
 
+        /* --- THE MAP LAYOUT --- */
         #map-container {
-            width: 450px; padding: 20px; background: #0d0d12;
-            display: flex; flex-direction: column; align-items: center;
-            z-index: 55; border-left: 2px solid #333;
+            width: 450px; padding: 20px; background: #0d0d12; display: flex; flex-direction: column; align-items: center; z-index: 55; border-left: 2px solid #333;
         }
-
         #camera-map {
-            width: 400px; height: 350px; position: relative;
-            background: rgba(255, 255, 255, 0.02);
-            border: 2px solid #333; border-radius: 5px; margin-top: 20px;
+            width: 400px; height: 350px; position: relative; background: rgba(255, 255, 255, 0.02); border: 2px solid #333; border-radius: 5px; margin-top: 20px;
         }
 
-        .cam-btn {
-            position: absolute; padding: 8px 12px; font-size: 14px;
-            background: #222; border: 2px solid #555; color: #aaa;
-            cursor: pointer; transition: all 0.2s;
-        }
-
-        .cam-btn:hover { border-color: #888; background: #333; color: white;}
-
-        .cam-btn.active-cam {
-            background: #000; border-color: var(--accent-green);
-            color: var(--accent-green); text-shadow: 0 0 5px var(--accent-green);
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-        }
+        .cam-btn { position: absolute; padding: 8px 12px; font-size: 14px; background: #222; border: 2px solid #555; color: #aaa; box-shadow: none; text-align: center; }
+        .cam-btn:hover { border-color: #888; background: #333; transform: none; }
+        .cam-btn.active-cam { background: #000; border-color: var(--accent-green); color: var(--accent-green); text-shadow: 0 0 5px var(--accent-green); box-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
+        .cam-btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: #444; color: #666; }
 
         #btn-cam0 { top: 20px; left: 140px; width: 120px; } 
         #btn-cam1 { top: 80px; left: 140px; width: 120px; } 
@@ -251,38 +126,23 @@
 
         #office-marker {
             position: absolute; top: 310px; left: 150px; width: 100px; height: 30px;
-            background: #111; border: 2px dashed #666; color: #666;
-            text-align: center; line-height: 30px; font-weight: bold; font-size: 12px; letter-spacing: 2px;
+            background: #111; border: 2px dashed #666; color: #666; text-align: center; line-height: 30px; font-weight: bold; font-size: 12px; letter-spacing: 2px; pointer-events: none;
         }
 
+        /* --- The Visual Enemy --- */
         #enemy-box {
-            width: 140px; height: 140px;
-            background: radial-gradient(circle, #ff5555, #aa0000);
-            color: #000; display: none;
-            justify-content: center; align-items: center;
-            font-size: 50px; font-weight: bold; border-radius: 16px;
+            width: 140px; height: 140px; background: radial-gradient(circle, #ff5555, #aa0000); color: #000; display: none;
+            justify-content: center; align-items: center; font-size: 50px; font-weight: bold; border-radius: 16px;
             box-shadow: 0 0 40px rgba(255,0,0,0.6); animation: pulse 2s infinite;
         }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 30px rgba(255,0,0,0.5); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,0,0,0.8); } 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,0,0,0.5); } }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 30px rgba(255,0,0,0.5); }
-            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,0,0,0.8); }
-            100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,0,0,0.5); }
-        }
-
-        #monitor-btn-container { position: absolute; bottom: 30px; width: 100%; text-align: center; z-index: 101; pointer-events: none;}
-        #monitor-toggle {
-            pointer-events: auto; cursor: pointer;
-            padding: 12px 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; font-size: 20px; color: #ccc;
-            transition: all 0.2s;
-        }
-        #monitor-toggle:hover { background: rgba(255,255,255,0.2); color: #fff; transform: translateY(-2px); }
+        #monitor-btn-container { position: absolute; bottom: 30px; width: 100%; text-align: center; z-index: 101; pointer-events: none; }
+        #monitor-toggle { pointer-events: auto; padding: 12px 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; font-size: 20px; color: #ccc; }
+        #monitor-toggle:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
         #jumpscare, #win-screen {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: black; display: none; justify-content: center; align-items: center;
-            font-size: 80px; z-index: 1000; font-weight: bold; letter-spacing: 5px;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background-color: black; display: none; justify-content: center; align-items: center; font-size: 80px; z-index: 1000; font-weight: bold; letter-spacing: 5px;
         }
         #jumpscare { color: var(--accent-red); text-shadow: 0 0 30px red; }
         #win-screen { color: #fff; text-shadow: 0 0 30px #fff; }
@@ -296,25 +156,21 @@
         <div id="usage-display">Usage: <span id="usage-bar">|</span></div>
     </div>
 
-    <div id="scene">
-        
-        <div id="ceiling" class="room-plane"></div>
-        <div id="floor" class="room-plane"></div>
-
-        <h1>SECURITY</h1>
-
-        <div class="door-panel" id="left-panel">
-            <button class="wall-btn" id="btn-left-door" onclick="toggleDoor('left')">DOOR</button>
-            <button class="wall-btn" id="btn-left-light" onclick="toggleLight('left')">LIGHT</button>
+    <div id="office">
+        <div class="door-panel">
+            <button id="btn-left-door" onclick="toggleDoor('left')">DOOR</button>
+            <button id="btn-left-light" onclick="toggleLight('left')">LIGHT</button>
             <div class="door-way doorway-dark" id="left-doorway">
                 <div class="door" id="left-door"></div>
                 <div class="door-enemy" id="door-enemy-left">&gt;:(</div>
             </div>
         </div>
 
-        <div class="door-panel" id="right-panel">
-            <button class="wall-btn" id="btn-right-door" onclick="toggleDoor('right')">DOOR</button>
-            <button class="wall-btn" id="btn-right-light" onclick="toggleLight('right')">LIGHT</button>
+        <h1>SECURITY</h1>
+
+        <div class="door-panel">
+            <button id="btn-right-door" onclick="toggleDoor('right')">DOOR</button>
+            <button id="btn-right-light" onclick="toggleLight('right')">LIGHT</button>
             <div class="door-way doorway-dark" id="right-doorway">
                 <div class="door" id="right-door"></div>
                 <div class="door-enemy" id="door-enemy-right">&gt;:(</div>
@@ -323,6 +179,7 @@
     </div>
 
     <div id="camera-monitor">
+        <div id="camera-static"></div>
         <div id="camera-view-area">
             <div id="camera-title">CAM 1A - Show Stage</div>
             <div id="enemy-box">&gt;:(</div>
@@ -343,39 +200,80 @@
     </div>
 
     <div id="monitor-btn-container">
-        <button id="monitor-toggle" onmouseover="toggleMonitor()">Hover to Open Monitor</button>
+        <button id="monitor-toggle" onmouseenter="startMonitorHover()" onmouseleave="cancelMonitorHover()">Hover 0.5s to Open Monitor</button>
     </div>
 
     <div id="jumpscare">GAME OVER</div>
     <div id="win-screen">6 AM</div>
 
     <script>
-        let power = 100.0;
-        let time = 0; 
-        let usage = 1;
-        let isMonitorUp = false;
-        let gameActive = true;
-        let currentCamera = 0;
-
-        let leftDoorClosed = false;
-        let rightDoorClosed = false;
-        let leftLightOn = false;
-        let rightLightOn = false;
-
+        let power = 100.0; let time = 0; let usage = 1; let isMonitorUp = false; let gameActive = true; let currentCamera = 0;
+        let leftDoorClosed = false; let rightDoorClosed = false; let leftLightOn = false; let rightLightOn = false;
         let enemyPosition = 0; 
 
-        let powerInterval, timeInterval;
-        let aiTimer; 
-        let attackTimer; 
+        let powerInterval, timeInterval, aiTimer, attackTimer;
+        let isSwitchingCam = false; 
+        let monitorHoverTimer = null; 
+
+        // --- Office Panning Logic ---
+        document.addEventListener('mousemove', (e) => {
+            if (isMonitorUp || !gameActive) return;
+            const xPercent = e.clientX / window.innerWidth;
+            const offset = (0.5 - xPercent) * 10; 
+            document.getElementById('office').style.transform = `translateX(${offset}vw)`;
+        });
+
+        // --- Audio System ---
+        let audioCtx;
+        function playSfx(type) {
+            if (!audioCtx) {
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } 
+                catch(e) { return; }
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const now = audioCtx.currentTime;
+            
+            if (type === 'door') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(10, now + 0.15);
+                gain.gain.setValueAtTime(0.8, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'footstep') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(60, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.2);
+                gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'static' || type === 'long-static') {
+                const duration = (type === 'long-static') ? 0.5 : 0.15;
+                const bufferSize = audioCtx.sampleRate * duration;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + duration);
+                noise.connect(gain); gain.connect(audioCtx.destination); noise.start(now);
+            }
+        }
+
+        // Initialize Audio Context quietly on first click
+        document.body.addEventListener('click', () => { playSfx(''); }, { once: true });
+
+        // --- Visual Static Effect ---
+        function triggerStaticVisual(duration = 150) {
+            let staticOverlay = document.getElementById('camera-static');
+            staticOverlay.style.opacity = '0.5';
+            setTimeout(() => { staticOverlay.style.opacity = '0'; }, duration);
+        }
 
         function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
         function startGame() {
             powerInterval = setInterval(drainPower, 1000); 
             timeInterval = setInterval(advanceTime, 50000); 
-            updateUsage();
-            updateCameraFeed();
-            scheduleNextMove();
+            updateUsage(); updateCameraFeed(); scheduleNextMove();
         }
 
         function drainPower() {
@@ -398,28 +296,22 @@
             if (leftLightOn) usage++; if (rightLightOn) usage++;
             if (isMonitorUp) usage++;
 
-            let bars = "|".repeat(usage);
             let usageBar = document.getElementById('usage-bar');
-            usageBar.innerText = bars;
+            usageBar.innerText = "|".repeat(usage);
             
-            if (usage < 3) {
-                usageBar.style.color = "var(--accent-green)"; usageBar.style.textShadow = "0 0 10px var(--accent-green)";
-            } else if (usage < 5) {
-                usageBar.style.color = "#ffff00"; usageBar.style.textShadow = "0 0 10px #ffff00";
-            } else {
-                usageBar.style.color = "var(--accent-red)"; usageBar.style.textShadow = "0 0 10px var(--accent-red)";
-            }
+            if (usage < 3) { usageBar.style.color = "var(--accent-green)"; usageBar.style.textShadow = "0 0 10px var(--accent-green)"; } 
+            else if (usage < 5) { usageBar.style.color = "#ffff00"; usageBar.style.textShadow = "0 0 10px #ffff00"; } 
+            else { usageBar.style.color = "var(--accent-red)"; usageBar.style.textShadow = "0 0 10px var(--accent-red)"; }
         }
 
         function toggleDoor(side) {
             if (power <= 0 || !gameActive) return;
+            playSfx('door'); 
             if (side === 'left') {
-                leftDoorClosed = !leftDoorClosed;
-                document.getElementById('left-door').style.height = leftDoorClosed ? '100%' : '0%';
+                leftDoorClosed = !leftDoorClosed; document.getElementById('left-door').style.height = leftDoorClosed ? '100%' : '0%';
                 document.getElementById('btn-left-door').classList.toggle('active-door');
             } else {
-                rightDoorClosed = !rightDoorClosed;
-                document.getElementById('right-door').style.height = rightDoorClosed ? '100%' : '0%';
+                rightDoorClosed = !rightDoorClosed; document.getElementById('right-door').style.height = rightDoorClosed ? '100%' : '0%';
                 document.getElementById('btn-right-door').classList.toggle('active-door');
             }
             updateUsage();
@@ -427,6 +319,7 @@
 
         function toggleLight(side) {
             if (power <= 0 || !gameActive) return;
+            playSfx('static'); 
             
             if (side === 'left') {
                 leftLightOn = !leftLightOn; rightLightOn = false;
@@ -449,20 +342,47 @@
             updateUsage();
         }
 
-        function toggleMonitor() {
+        // --- Monitor Hover Logic ---
+        function startMonitorHover() {
             if (power <= 0 || !gameActive) return;
+            document.getElementById('monitor-toggle').innerText = "Loading..."; 
+            monitorHoverTimer = setTimeout(() => { toggleMonitor(); }, 500); 
+        }
+
+        function cancelMonitorHover() {
+            if (monitorHoverTimer) { clearTimeout(monitorHoverTimer); monitorHoverTimer = null; }
+            document.getElementById('monitor-toggle').innerText = isMonitorUp ? "Hover 0.5s to Close Monitor" : "Hover 0.5s to Open Monitor";
+        }
+
+        function toggleMonitor() {
             isMonitorUp = !isMonitorUp;
+            if (isMonitorUp) { playSfx('static'); triggerStaticVisual(); }
             document.getElementById('camera-monitor').style.display = isMonitorUp ? 'flex' : 'none';
-            document.getElementById('monitor-toggle').innerText = isMonitorUp ? "Hover to Close Monitor" : "Hover to Open Monitor";
+            document.getElementById('monitor-toggle').innerText = isMonitorUp ? "Hover 0.5s to Close Monitor" : "Hover 0.5s to Open Monitor";
             updateCameraFeed(); updateUsage();
         }
 
         function switchCamera(camId) {
-            if (!isMonitorUp) return;
-            document.querySelectorAll('.cam-btn').forEach(btn => btn.classList.remove('active-cam'));
+            if (!isMonitorUp || isSwitchingCam || currentCamera === camId) return;
+
+            isSwitchingCam = true;
+            playSfx('long-static'); 
+            triggerStaticVisual(500);
+
+            document.querySelectorAll('.cam-btn').forEach(btn => {
+                btn.classList.remove('active-cam'); btn.disabled = true;
+            });
             document.getElementById(`btn-cam${camId}`).classList.add('active-cam');
-            currentCamera = camId;
-            updateCameraFeed();
+            
+            document.getElementById('camera-title').innerText = "SIGNAL LOST...";
+            document.getElementById('enemy-box').style.display = 'none';
+
+            setTimeout(() => {
+                currentCamera = camId;
+                updateCameraFeed();
+                isSwitchingCam = false;
+                document.querySelectorAll('.cam-btn').forEach(btn => btn.disabled = false); 
+            }, 500);
         }
 
         function updateCameraFeed() {
@@ -472,11 +392,10 @@
                 3: "CAM 4A - East Hall", 4: "CAM 4B - E. Hall Corner"
             };
             document.getElementById('camera-title').innerText = titles[currentCamera];
-
-            let enemyBox = document.getElementById('enemy-box');
-            enemyBox.style.display = (enemyPosition === currentCamera) ? 'flex' : 'none';
+            document.getElementById('enemy-box').style.display = (enemyPosition === currentCamera) ? 'flex' : 'none';
         }
 
+        // --- Map Branching AI Logic ---
         function scheduleNextMove() {
             if (!gameActive) return;
             let delay = getRandomInt(12000, 30000);
@@ -485,6 +404,7 @@
 
         function moveEnemy() {
             if (!gameActive) return;
+            playSfx('footstep');
 
             if (enemyPosition === 0) {
                 enemyPosition = 1; 
@@ -496,7 +416,9 @@
                 enemyPosition = 4; 
             }
 
-            if (isMonitorUp) updateCameraFeed();
+            if (isMonitorUp && !isSwitchingCam) {
+                triggerStaticVisual(); playSfx('static'); updateCameraFeed();
+            }
             
             if (enemyPosition === 7) {
                 let attackDelay = getRandomInt(6000, 10000);
@@ -520,9 +442,8 @@
                 gameOver();
             } else {
                 enemyPosition = Math.floor(Math.random() * 2); 
-                checkDoorway('left'); 
-                checkDoorway('right');
-                if (isMonitorUp) updateCameraFeed();
+                checkDoorway('left'); checkDoorway('right');
+                if (isMonitorUp && !isSwitchingCam) updateCameraFeed();
                 scheduleNextMove(); 
             }
         }
@@ -535,19 +456,15 @@
             
             if (side === 'left' && leftLightOn) {
                 if (enemyPosition === 7) { 
-                    leftWay.className = "door-way doorway-danger";
-                    leftEnemy.style.opacity = '1'; 
+                    leftWay.className = "door-way doorway-danger"; leftEnemy.style.opacity = '1'; 
                 } else {
-                    leftWay.className = "door-way doorway-lit";
-                    leftEnemy.style.opacity = '0';
+                    leftWay.className = "door-way doorway-lit"; leftEnemy.style.opacity = '0';
                 }
             } else if (side === 'right' && rightLightOn) {
                 if (enemyPosition === 4) { 
-                    rightWay.className = "door-way doorway-danger";
-                    rightEnemy.style.opacity = '1';
+                    rightWay.className = "door-way doorway-danger"; rightEnemy.style.opacity = '1';
                 } else {
-                    rightWay.className = "door-way doorway-lit";
-                    rightEnemy.style.opacity = '0';
+                    rightWay.className = "door-way doorway-lit"; rightEnemy.style.opacity = '0';
                 }
             }
         }
@@ -556,16 +473,12 @@
             leftDoorClosed = false; rightDoorClosed = false;
             leftLightOn = false; rightLightOn = false; isMonitorUp = false;
             
-            document.getElementById('left-door').style.height = '0%';
-            document.getElementById('right-door').style.height = '0%';
+            document.getElementById('left-door').style.height = '0%'; document.getElementById('right-door').style.height = '0%';
             document.getElementById('camera-monitor').style.display = 'none';
-            document.getElementById('left-doorway').className = "door-way doorway-dark";
-            document.getElementById('right-doorway').className = "door-way doorway-dark";
-            document.getElementById('door-enemy-left').style.opacity = '0';
-            document.getElementById('door-enemy-right').style.opacity = '0';
+            document.getElementById('left-doorway').className = "door-way doorway-dark"; document.getElementById('right-doorway').className = "door-way doorway-dark";
+            document.getElementById('door-enemy-left').style.opacity = '0'; document.getElementById('door-enemy-right').style.opacity = '0';
             
-            document.getElementById('scene').style.background = "#000";
-            document.querySelector('h1').style.color = "#000";
+            document.getElementById('office').style.background = "#000"; document.querySelector('h1').style.color = "#000";
             document.querySelectorAll('.door-panel').forEach(p => p.style.border = "1px solid #000");
             
             setTimeout(gameOver, 3000); 
@@ -575,7 +488,7 @@
             gameActive = false;
             clearInterval(powerInterval); clearInterval(timeInterval);
             clearTimeout(aiTimer); clearTimeout(attackTimer);
-            document.getElementById('jumpscare').style.display = 'flex';
+            playSfx('static'); document.getElementById('jumpscare').style.display = 'flex';
         }
 
         function winGame() {
