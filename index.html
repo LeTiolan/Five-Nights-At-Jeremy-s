@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survival Night Prototype - Distinct AI Update</title>
+    <title>Survival Night Prototype - Glitch Update</title>
     <style>
         :root {
             --bg-dark: #0a0a0c;
@@ -11,6 +11,7 @@
             --accent-green: #00ff88;
             --accent-red: #ff3333;
             --accent-orange: #ff9900;
+            --accent-purple: #a044ff;
         }
 
         body {
@@ -33,53 +34,49 @@
             color: var(--accent-green); text-shadow: 0 0 10px var(--accent-green); transition: color 0.3s, text-shadow 0.3s;
         }
 
-        h1 { color: #444; letter-spacing: 5px; text-shadow: 2px 2px 4px #000; text-align: center; pointer-events: none; }
+        h1 { color: #444; letter-spacing: 5px; text-shadow: 2px 2px 4px #000; text-align: center; pointer-events: none; font-size: 32px; }
 
         /* --- The Office --- */
         #office {
             display: flex; justify-content: space-between; align-items: center; height: 100vh;
-            width: 120vw; position: relative; left: -10vw; padding: 0 12vw; box-sizing: border-box;
+            width: 130vw; position: relative; left: -15vw; padding: 0 15vw; box-sizing: border-box;
             transition: transform 0.1s ease-out; will-change: transform;
         }
 
         .door-panel {
             display: flex; flex-direction: column; gap: 15px; padding: 25px;
             background: linear-gradient(145deg, #2a2a35, #15151a); border-radius: 12px;
-            box-shadow: 10px 10px 30px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.1); border: 1px solid #333; z-index: 10;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.8); border: 1px solid #333; z-index: 10;
         }
 
-        /* --- Buttons --- */
         button {
             padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; background: linear-gradient(to bottom, #4a4a5a, #2a2a35);
-            color: #aaa; border: none; border-radius: 8px; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+            color: #aaa; border: none; border-radius: 8px; transition: all 0.2s ease;
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2); color: #fff; }
-        button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        button:hover { color: #fff; background: #3a3a4a; }
         button.active { background: linear-gradient(to bottom, #fff, #ccc); color: #000; box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
         button.active-door { background: linear-gradient(to bottom, var(--accent-red), #aa0000); color: #fff; box-shadow: 0 0 20px rgba(255, 50, 50, 0.5); }
 
-        /* --- Doors & Hallways --- */
         .door-way {
-            width: 160px; height: 320px; border-radius: 8px 8px 0 0; position: relative; overflow: hidden;
-            border: 6px solid #111; box-shadow: inset 0 0 50px rgba(0,0,0,1); transition: background-color 0.4s ease, box-shadow 0.4s ease;
+            width: 190px; height: 380px; border-radius: 4px 4px 0 0; position: relative; overflow: hidden;
+            border: 6px solid #111; box-shadow: inset 0 0 80px rgba(0,0,0,1); transition: background-color 0.4s ease;
         }
-        .doorway-dark { background-color: #050505; }
-        .doorway-lit { background-color: #555; box-shadow: inset 0 0 60px rgba(255,255,255,0.8); }
+        .doorway-dark { background-color: #050507; }
+        .doorway-lit { background-color: #444; box-shadow: inset 0 0 60px rgba(255,255,255,0.4); }
         
-        /* Distinct Danger Colors */
-        .doorway-danger-red { background-color: #4a1111; box-shadow: inset 0 0 80px rgba(255,0,0,0.9); }
-        .doorway-danger-orange { background-color: #4a2d11; box-shadow: inset 0 0 80px rgba(255,153,0,0.9); }
+        .doorway-danger-red { background-color: #330505; box-shadow: inset 0 0 100px rgba(255,0,0,0.8); }
+        .doorway-danger-orange { background-color: #331a05; box-shadow: inset 0 0 100px rgba(255,153,0,0.8); }
 
         .door {
             position: absolute; top: 0; left: 0; width: 100%; height: 0%;
-            background: repeating-linear-gradient(to bottom, #444, #444 15px, #333 15px, #333 30px);
-            border-bottom: 5px solid #222; transition: height 0.15s cubic-bezier(0.25, 0.8, 0.25, 1); z-index: 10;
+            background: repeating-linear-gradient(to bottom, #3a3a3a, #3a3a3a 15px, #222 15px, #222 30px);
+            border-bottom: 6px solid #111; transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10;
         }
         
         .door-enemy {
-            position: absolute; bottom: 20px; left: 30px; width: 100px; height: 100px;
+            position: absolute; bottom: 25px; left: 35px; width: 120px; height: 120px;
             color: #000; display: flex; opacity: 0; justify-content: center; align-items: center; 
-            font-size: 35px; font-weight: bold; border-radius: 12px; z-index: 5; transition: opacity 0.3s ease;
+            font-size: 40px; font-weight: bold; border-radius: 12px; z-index: 5; transition: opacity 0.3s ease;
         }
         #door-enemy-left { background: radial-gradient(circle, #ff5555, #aa0000); box-shadow: 0 0 30px #ff0000; }
         #door-enemy-right { background: radial-gradient(circle, #ffbb33, #cc7700); box-shadow: 0 0 30px #ff9900; }
@@ -89,12 +86,7 @@
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: rgba(5, 10, 5, 0.95); display: none; flex-direction: row; z-index: 50;
         }
-        #camera-monitor::after {
-            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: repeating-linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%);
-            background-size: 100% 6px; pointer-events: none; z-index: 60;
-        }
-        
+
         #camera-static {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: repeating-radial-gradient(circle at center, #222 0, #aaa 2px, #fff 3px, #000 4px);
@@ -102,63 +94,75 @@
         }
 
         #camera-view-area {
-            flex-grow: 1; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border-right: 2px solid #222; box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+            flex: 1; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border-right: 4px solid #222; box-shadow: inset 0 0 200px rgba(0,0,0,1); overflow: hidden;
+            background: #000;
         }
+
+        #camera-ui-overlay {
+            position: absolute; width: 85%; height: 80%; pointer-events: none;
+            border: 2px solid rgba(255,255,255,0.05); border-radius: 10px; z-index: 58;
+        }
+
+        .camera-corner { position: absolute; width: 30px; height: 30px; border: 4px solid #fff; filter: drop-shadow(0 0 5px #fff); }
+        .top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+        .bot-left { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+        .bot-right { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
         #camera-title {
-            position: absolute; top: 30px; left: 40px; font-size: 28px; color: #fff; text-shadow: 0 0 10px #fff; letter-spacing: 2px;
+            position: absolute; top: 40px; left: 50px; font-size: 28px; color: #fff; text-shadow: 0 0 10px #fff; letter-spacing: 2px; font-weight: bold;
         }
 
-        /* --- THE MAP LAYOUT --- */
+        #rec-dot { position: absolute; top: 45px; right: 50px; color: red; font-size: 18px; animation: blink 1s infinite; font-weight: bold; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
         #map-container {
-            width: 450px; padding: 20px; background: #0d0d12; display: flex; flex-direction: column; align-items: center; z-index: 55; border-left: 2px solid #333;
+            width: 450px; padding: 30px; background: #08080a; display: flex; flex-direction: column; align-items: center; z-index: 55; border-left: 3px solid #1a1a1a;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
+        
         #camera-map {
-            width: 400px; height: 350px; position: relative; background: rgba(255, 255, 255, 0.02); border: 2px solid #333; border-radius: 5px; margin-top: 20px;
+            width: 380px; height: 420px; position: relative; background: rgba(255, 255, 255, 0.03); border: 2px solid #333; border-radius: 8px; margin-top: 50px;
         }
 
-        .cam-btn { position: absolute; padding: 8px 12px; font-size: 14px; background: #222; border: 2px solid #555; color: #aaa; box-shadow: none; text-align: center; }
-        .cam-btn:hover { border-color: #888; background: #333; transform: none; }
-        .cam-btn.active-cam { background: #000; border-color: var(--accent-green); color: var(--accent-green); text-shadow: 0 0 5px var(--accent-green); box-shadow: 0 0 10px rgba(0, 255, 136, 0.3); }
-        .cam-btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: #444; color: #666; }
+        .cam-btn { position: absolute; padding: 12px 15px; font-size: 14px; background: #111; border: 2px solid #444; color: #888; text-align: center; transition: all 0.2s; cursor: pointer; font-weight: bold; }
+        .cam-btn.active-cam { background: #000; border-color: var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
 
-        #btn-cam0 { top: 20px; left: 140px; width: 120px; } 
-        #btn-cam1 { top: 80px; left: 140px; width: 120px; } 
-        #btn-cam5 { top: 150px; left: 40px; width: 100px; } 
-        #btn-cam3 { top: 150px; left: 260px; width: 100px;} 
-        #btn-cam7 { top: 250px; left: 40px; width: 100px; } 
-        #btn-cam4 { top: 250px; left: 260px; width: 100px;} 
+        #btn-cam0 { top: 20px; left: 130px; width: 120px; } 
+        #btn-cam1 { top: 100px; left: 130px; width: 120px; } 
+        #btn-cam5 { top: 180px; left: 30px; width: 100px; } 
+        #btn-cam3 { top: 180px; left: 250px; width: 100px;} 
+        #btn-cam7 { top: 280px; left: 30px; width: 100px; } 
+        #btn-cam4 { top: 280px; left: 250px; width: 100px;} 
 
         #office-marker {
-            position: absolute; top: 310px; left: 150px; width: 100px; height: 30px;
-            background: #111; border: 2px dashed #666; color: #666; text-align: center; line-height: 30px; font-weight: bold; font-size: 12px; letter-spacing: 2px; pointer-events: none;
+            position: absolute; top: 370px; left: 130px; width: 120px; height: 35px;
+            background: #111; border: 2px dashed #555; color: #555; text-align: center; line-height: 35px; font-weight: bold; font-size: 12px; letter-spacing: 2px;
         }
 
-        /* --- Visual Enemies on Camera --- */
-        #enemy-container {
-            display: flex; gap: 30px; justify-content: center; align-items: center;
-        }
+        #enemy-container { display: flex; gap: 30px; justify-content: center; align-items: center; }
         .enemy-box {
-            min-width: 140px; height: 140px; padding: 0 20px; color: #000; display: none;
-            justify-content: center; align-items: center; font-size: 40px; font-weight: bold; border-radius: 16px; text-align: center;
-            white-space: nowrap;
+            min-width: 180px; height: 180px; padding: 0 20px; color: #000; display: none;
+            justify-content: center; align-items: center; font-size: 60px; font-weight: bold; border-radius: 20px; text-align: center;
         }
         
         #enemy-1-box { background: radial-gradient(circle, #ff5555, #aa0000); animation: pulse-red 2s infinite; }
         #enemy-2-box { background: radial-gradient(circle, #ffbb33, #cc7700); animation: pulse-orange 2s infinite; }
+        #enemy-3-box { background: radial-gradient(circle, #a044ff, #4400aa); animation: glitch-anim 0.2s infinite; border: 5px solid white; color: white; }
 
-        @keyframes pulse-red { 0% { transform: scale(1); box-shadow: 0 0 30px rgba(255,0,0,0.5); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,0,0,0.8); } 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,0,0,0.5); } }
-        @keyframes pulse-orange { 0% { transform: scale(1); box-shadow: 0 0 30px rgba(255,153,0,0.5); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(255,153,0,0.8); } 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,153,0,0.5); } }
+        @keyframes glitch-anim { 0% { transform: translate(0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(-5px, -5px); } 60% { transform: translate(5px, 5px); } 80% { transform: translate(5px, -5px); } 100% { transform: translate(0); } }
+        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,0,0,0.6); } 100% { transform: scale(1); } }
+        @keyframes pulse-orange { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,153,0,0.6); } 100% { transform: scale(1); } }
 
         #monitor-btn-container { position: absolute; bottom: 30px; width: 100%; text-align: center; z-index: 101; pointer-events: none; }
-        #monitor-toggle { pointer-events: auto; padding: 12px 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; font-size: 20px; color: #ccc; }
-        #monitor-toggle:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        #monitor-toggle { pointer-events: auto; padding: 12px 50px; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; font-size: 20px; color: #ccc; cursor: pointer; }
 
         #jumpscare, #win-screen {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background-color: black; display: none; justify-content: center; align-items: center; font-size: 80px; z-index: 1000; font-weight: bold; letter-spacing: 5px;
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background-color: black; display: none; justify-content: center; align-items: center; font-size: 80px; z-index: 1000; font-weight: bold;
         }
         #jumpscare { color: var(--accent-red); text-shadow: 0 0 30px red; flex-direction: column; }
-        #win-screen { color: #fff; text-shadow: 0 0 30px #fff; }
+        #win-screen { color: #fff; text-shadow: 0 0 30px #fff; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -178,9 +182,7 @@
                 <div class="door-enemy" id="door-enemy-left"></div>
             </div>
         </div>
-
         <h1>SECURITY</h1>
-
         <div class="door-panel">
             <button id="btn-right-door" onclick="toggleDoor('right')">DOOR</button>
             <button id="btn-right-light" onclick="toggleLight('right')">LIGHT</button>
@@ -194,15 +196,22 @@
     <div id="camera-monitor">
         <div id="camera-static"></div>
         <div id="camera-view-area">
-            <div id="camera-title">CAM 1A - Show Stage</div>
+            <div id="camera-ui-overlay">
+                <div class="camera-corner top-left"></div>
+                <div class="camera-corner top-right"></div>
+                <div class="camera-corner bot-left"></div>
+                <div class="camera-corner bot-right"></div>
+            </div>
+            <div id="camera-title">CAM 1A - Stage</div>
+            <div id="rec-dot">● REC</div>
             <div id="enemy-container">
                 <div class="enemy-box" id="enemy-1-box">>:(</div>
                 <div class="enemy-box" id="enemy-2-box">O_o</div>
+                <div class="enemy-box" id="enemy-3-box">_</div>
             </div>
         </div>
-        
         <div id="map-container">
-            <h3 style="color:#666; letter-spacing: 2px; margin: 0;">SYSTEM MAP</h3>
+            <h2 style="color:#222; letter-spacing: 4px; margin: 0; font-size: 18px;">REMOTE ACCESS v2.4</h2>
             <div id="camera-map">
                 <button class="cam-btn active-cam" id="btn-cam0" onclick="switchCamera(0)">CAM 1A</button>
                 <button class="cam-btn" id="btn-cam1" onclick="switchCamera(1)">CAM 1B</button>
@@ -222,35 +231,25 @@
     <div id="jumpscare">
         <div>GAME OVER</div>
         <div id="jumpscare-face" style="font-size: 120px; margin-top: 20px;"></div>
+        <div id="game-over-retry-area"></div>
     </div>
-    <div id="win-screen">6 AM</div>
+    <div id="win-screen">
+        <div>6 AM</div>
+        <div id="win-retry-area"></div>
+    </div>
 
     <script>
         let power = 100.0; let time = 0; let usage = 1; let isMonitorUp = false; let gameActive = true; let currentCamera = 0;
         let leftDoorClosed = false; let rightDoorClosed = false; let leftLightOn = false; let rightLightOn = false;
+        let enemy1Pos = 0; let enemy2Pos = 0; let glitchActive = false;
         
-        let enemy1Pos = 0; 
-        let enemy2Pos = 0; 
-
         let powerInterval, timeInterval;
-        let aiTimer1, attackTimer1;
-        let aiTimer2, attackTimer2;
-        
-        let isSwitchingCam = false; 
-        let monitorHoverTimer = null; 
-
-        let lightHumOsc = null; 
-        let lightHumGain = null;
-
-        document.addEventListener('mousemove', (e) => {
-            if (isMonitorUp || !gameActive) return;
-            const xPercent = e.clientX / window.innerWidth;
-            const offset = (0.5 - xPercent) * 10; 
-            document.getElementById('office').style.transform = `translateX(${offset}vw)`;
-        });
-
+        let aiTimer1, attackTimer1, aiTimer2, attackTimer2;
+        let isSwitchingCam = false; let monitorHoverTimer = null; 
+        let lightHumOsc = null; let lightHumGain = null;
         let audioCtx;
-        function playSfx(type) {
+
+        function playSfx(type, camId) {
             if (!audioCtx) {
                 try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } 
                 catch(e) { return; }
@@ -262,120 +261,64 @@
             const now = audioCtx.currentTime;
             
             if (type === 'door') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(10, now + 0.15);
-                gain.gain.setValueAtTime(0.8, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.15);
+                osc.type = 'square'; osc.frequency.setValueAtTime(80, now); osc.frequency.exponentialRampToValueAtTime(10, now + 0.25);
+                gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.25);
             } else if (type === 'footstep') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(60, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.2);
                 gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
                 osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'ping-red' || type === 'ping-orange') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(type === 'ping-red' ? 880 : 660, now);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.2);
+                if (camId !== undefined) flashMapButton(camId, type === 'ping-red' ? 'var(--accent-red)' : 'var(--accent-orange)');
             } else if (type === 'static') {
                 const duration = 0.15;
                 const bufferSize = audioCtx.sampleRate * duration;
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                
-                const noise = audioCtx.createBufferSource();
-                noise.buffer = buffer;
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + duration);
+                const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+                gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + duration);
                 noise.connect(gain); gain.connect(audioCtx.destination); noise.start(now);
-            } else if (type === 'camera-switch') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(450, now); osc.frequency.exponentialRampToValueAtTime(120, now + 0.15);
-                gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.15);
-
-                const bufferSize = audioCtx.sampleRate * 0.15;
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                const noise = audioCtx.createBufferSource();
-                noise.buffer = buffer;
-                
-                const noiseGain = audioCtx.createGain();
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'bandpass'; filter.frequency.value = 1200; filter.Q.value = 2; 
-
-                noiseGain.gain.setValueAtTime(0.3, now); noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-                noise.start(now);
-            } else if (type === 'switch') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.1);
-                gain.gain.setValueAtTime(0.5, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            } else if (type === 'glitch') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
+                gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0, now + 0.1);
                 osc.connect(gain); gain.connect(audioCtx.destination); osc.start(now); osc.stop(now + 0.1);
-
-                const bufferSize = audioCtx.sampleRate * 0.05;
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                const noise = audioCtx.createBufferSource();
-                noise.buffer = buffer;
-                
-                const noiseGain = audioCtx.createGain();
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass'; filter.frequency.value = 600; 
-
-                noiseGain.gain.setValueAtTime(0.8, now); noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-                noise.start(now);
             }
+        }
+
+        function flashMapButton(camId, color) {
+            const btn = document.getElementById('btn-cam' + camId);
+            if (!btn) return;
+            const originalBg = btn.style.backgroundColor;
+            btn.style.backgroundColor = color;
+            setTimeout(() => { btn.style.backgroundColor = originalBg; }, 500);
         }
 
         function manageLightHum() {
             if (!audioCtx || audioCtx.state === 'suspended') return;
-            
             if (leftLightOn || rightLightOn) {
                 if (!lightHumOsc) {
-                    lightHumOsc = audioCtx.createOscillator();
-                    lightHumGain = audioCtx.createGain();
-                    
-                    lightHumOsc.type = 'sawtooth';
-                    lightHumOsc.frequency.setValueAtTime(60, audioCtx.currentTime);
-                    lightHumGain.gain.setValueAtTime(0.03, audioCtx.currentTime); 
-                    
-                    lightHumOsc.connect(lightHumGain);
-                    lightHumGain.connect(audioCtx.destination);
-                    lightHumOsc.start();
+                    lightHumOsc = audioCtx.createOscillator(); lightHumGain = audioCtx.createGain();
+                    lightHumOsc.type = 'sawtooth'; lightHumOsc.frequency.setValueAtTime(60, audioCtx.currentTime);
+                    lightHumGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    lightHumOsc.connect(lightHumGain); lightHumGain.connect(audioCtx.destination); lightHumOsc.start();
                 }
-            } else {
-                stopLightHum();
-            }
+            } else { stopLightHum(); }
         }
 
         function stopLightHum() {
             if (lightHumOsc && lightHumGain) {
                 lightHumGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.05);
-                setTimeout(() => {
-                    if (lightHumOsc) {
-                        lightHumOsc.stop(); lightHumOsc.disconnect(); lightHumGain.disconnect();
-                        lightHumOsc = null; lightHumGain = null;
-                    }
-                }, 50);
+                setTimeout(() => { if (lightHumOsc) { lightHumOsc.stop(); lightHumOsc.disconnect(); lightHumGain.disconnect(); lightHumOsc = null; lightHumGain = null; } }, 50);
             }
-        }
-
-        document.body.addEventListener('click', () => { playSfx(''); }, { once: true });
-
-        function triggerStaticVisual(duration = 150) {
-            let staticOverlay = document.getElementById('camera-static');
-            staticOverlay.style.opacity = '0.5';
-            setTimeout(() => { staticOverlay.style.opacity = '0'; }, duration);
-        }
-
-        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-        function startGame() {
-            powerInterval = setInterval(drainPower, 1000); 
-            timeInterval = setInterval(advanceTime, 50000); 
-            updateUsage(); updateCameraFeed(); 
-            
-            scheduleNextMove1();
-            scheduleNextMove2();
         }
 
         function drainPower() {
             if (!gameActive) return;
-            power -= (usage * 0.10); 
+            power -= (usage * 0.10);
             if (power <= 0) { power = 0; triggerPowerOutage(); }
             document.getElementById('power-display').innerText = `Power: ${Math.floor(power)}%`;
         }
@@ -388,22 +331,22 @@
         }
 
         function updateUsage() {
-            usage = 1; 
+            usage = 1;
             if (leftDoorClosed) usage++; if (rightDoorClosed) usage++;
             if (leftLightOn) usage++; if (rightLightOn) usage++;
             if (isMonitorUp) usage++;
-
-            let usageBar = document.getElementById('usage-bar');
-            usageBar.innerText = "|".repeat(usage);
+            if (glitchActive && isMonitorUp) usage += 3; // MASSIVE DRAIN
+            document.getElementById('usage-bar').innerText = "|".repeat(usage);
             
-            if (usage < 3) { usageBar.style.color = "var(--accent-green)"; usageBar.style.textShadow = "0 0 10px var(--accent-green)"; } 
-            else if (usage < 5) { usageBar.style.color = "#ffff00"; usageBar.style.textShadow = "0 0 10px #ffff00"; } 
-            else { usageBar.style.color = "var(--accent-red)"; usageBar.style.textShadow = "0 0 10px var(--accent-red)"; }
+            const bar = document.getElementById('usage-bar');
+            if (usage >= 5) bar.style.color = "var(--accent-red)";
+            else if (usage >= 3) bar.style.color = "var(--accent-orange)";
+            else bar.style.color = "var(--accent-green)";
         }
 
         function toggleDoor(side) {
             if (power <= 0 || !gameActive) return;
-            playSfx('door'); 
+            playSfx('door');
             if (side === 'left') {
                 leftDoorClosed = !leftDoorClosed; document.getElementById('left-door').style.height = leftDoorClosed ? '100%' : '0%';
                 document.getElementById('btn-left-door').classList.toggle('active-door');
@@ -416,227 +359,157 @@
 
         function toggleLight(side) {
             if (power <= 0 || !gameActive) return;
-            
-            playSfx('switch'); 
-            
-            if (side === 'left') {
-                leftLightOn = !leftLightOn; rightLightOn = false;
-                document.getElementById('btn-right-light').classList.remove('active');
-                document.getElementById('btn-left-light').classList.toggle('active');
-            } else {
-                rightLightOn = !rightLightOn; leftLightOn = false;
-                document.getElementById('btn-left-light').classList.remove('active');
-                document.getElementById('btn-right-light').classList.toggle('active');
-            }
-
-            document.getElementById('left-doorway').className = "door-way doorway-dark";
-            document.getElementById('right-doorway').className = "door-way doorway-dark";
-            document.getElementById('door-enemy-left').style.opacity = '0';
-            document.getElementById('door-enemy-right').style.opacity = '0';
-
-            if (leftLightOn) checkDoorway('left'); 
-            else if (rightLightOn) checkDoorway('right');
-            
-            manageLightHum();
-            updateUsage();
+            if (side === 'left') { leftLightOn = !leftLightOn; rightLightOn = false; document.getElementById('btn-right-light').classList.remove('active'); document.getElementById('btn-left-light').classList.toggle('active'); }
+            else { rightLightOn = !rightLightOn; leftLightOn = false; document.getElementById('btn-left-light').classList.remove('active'); document.getElementById('btn-right-light').classList.toggle('active'); }
+            document.getElementById('left-doorway').className = "door-way doorway-dark"; document.getElementById('right-doorway').className = "door-way doorway-dark";
+            document.getElementById('door-enemy-left').style.opacity = '0'; document.getElementById('door-enemy-right').style.opacity = '0';
+            if (leftLightOn) checkDoorway('left'); else if (rightLightOn) checkDoorway('right');
+            manageLightHum(); updateUsage();
         }
 
-        function startMonitorHover() {
-            if (power <= 0 || !gameActive) return;
-            document.getElementById('monitor-toggle').innerText = "Loading..."; 
-            monitorHoverTimer = setTimeout(() => { toggleMonitor(); }, 250); 
-        }
-
-        function cancelMonitorHover() {
-            if (monitorHoverTimer) { clearTimeout(monitorHoverTimer); monitorHoverTimer = null; }
-            document.getElementById('monitor-toggle').innerText = "Camera System";
-        }
-
+        function startMonitorHover() { if (power <= 0 || !gameActive) return; document.getElementById('monitor-toggle').innerText = "..."; monitorHoverTimer = setTimeout(toggleMonitor, 250); }
+        function cancelMonitorHover() { if (monitorHoverTimer) { clearTimeout(monitorHoverTimer); monitorHoverTimer = null; } document.getElementById('monitor-toggle').innerText = "Camera System"; }
+        
         function toggleMonitor() {
-            isMonitorUp = !isMonitorUp;
-            playSfx('static'); 
-            
-            if (isMonitorUp) { triggerStaticVisual(); }
+            isMonitorUp = !isMonitorUp; playSfx('static');
+            if (isMonitorUp) {
+                triggerStaticVisual();
+                checkGlitchSpawn();
+            } else {
+                glitchActive = false; // Glitch leaves when monitor is shut
+            }
             document.getElementById('camera-monitor').style.display = isMonitorUp ? 'flex' : 'none';
-            document.getElementById('monitor-toggle').innerText = "Camera System";
             updateCameraFeed(); updateUsage();
+        }
+
+        function checkGlitchSpawn() {
+            // 25% chance to spawn glitch when opening monitor or switching cams
+            if (Math.random() < 0.25) {
+                glitchActive = true;
+                playSfx('glitch');
+            }
         }
 
         function switchCamera(camId) {
             if (!isMonitorUp || isSwitchingCam || currentCamera === camId) return;
-
-            isSwitchingCam = true;
-            playSfx('camera-switch'); 
-            triggerStaticVisual(500);
-
-            document.querySelectorAll('.cam-btn').forEach(btn => {
-                btn.classList.remove('active-cam'); btn.disabled = true;
-            });
+            isSwitchingCam = true; playSfx('static'); triggerStaticVisual(500);
+            document.querySelectorAll('.cam-btn').forEach(btn => btn.classList.remove('active-cam'));
             document.getElementById(`btn-cam${camId}`).classList.add('active-cam');
             
-            document.getElementById('camera-title').innerText = "SIGNAL LOST...";
-            document.getElementById('enemy-1-box').style.display = 'none';
-            document.getElementById('enemy-2-box').style.display = 'none';
-
-            setTimeout(() => {
-                currentCamera = camId;
-                updateCameraFeed();
-                isSwitchingCam = false;
-                document.querySelectorAll('.cam-btn').forEach(btn => btn.disabled = false); 
+            // Glitch resets on camera switch (either spawns or despawns)
+            glitchActive = false;
+            
+            setTimeout(() => { 
+                currentCamera = camId; 
+                checkGlitchSpawn();
+                updateCameraFeed(); 
+                isSwitchingCam = false; 
+                updateUsage();
             }, 500);
         }
 
         function updateCameraFeed() {
-            const titles = {
-                0: "CAM 1A - Show Stage", 1: "CAM 1B - Dining Area",
-                5: "CAM 2A - West Hall", 7: "CAM 2B - W. Hall Corner",
-                3: "CAM 4A - East Hall", 4: "CAM 4B - E. Hall Corner"
-            };
+            const titles = { 0: "CAM 1A - Stage", 1: "CAM 1B - Dining", 5: "CAM 2A - W. Hall", 7: "CAM 2B - Corner", 3: "CAM 4A - E. Hall", 4: "CAM 4B - Corner" };
             document.getElementById('camera-title').innerText = titles[currentCamera];
-            
             document.getElementById('enemy-1-box').style.display = (enemy1Pos === currentCamera) ? 'flex' : 'none';
             document.getElementById('enemy-2-box').style.display = (enemy2Pos === currentCamera) ? 'flex' : 'none';
+            document.getElementById('enemy-3-box').style.display = glitchActive ? 'flex' : 'none';
         }
 
-        function scheduleNextMove1() {
-            if (!gameActive) return;
-            aiTimer1 = setTimeout(moveEnemy1, getRandomInt(12000, 25000));
-        }
+        function triggerStaticVisual(duration = 150) { let s = document.getElementById('camera-static'); s.style.opacity = '0.5'; setTimeout(() => { s.style.opacity = '0'; }, duration); }
 
+        function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        
+        function scheduleNextMove1() { if (gameActive) aiTimer1 = setTimeout(moveEnemy1, getRandomInt(12000, 25000)); }
         function moveEnemy1() {
             if (!gameActive) return;
-            playSfx('footstep');
-
-            if (enemy1Pos === 0) enemy1Pos = 1; 
-            else if (enemy1Pos === 1) enemy1Pos = 5; 
-            else if (enemy1Pos === 5) enemy1Pos = 7; 
-            
-            if (isMonitorUp && !isSwitchingCam) { triggerStaticVisual(); playSfx('static'); updateCameraFeed(); }
-            
-            if (enemy1Pos === 7) {
-                attackTimer1 = setTimeout(() => attemptAttack(1, 'left'), getRandomInt(6000, 10000));
-                if (leftLightOn) checkDoorway('left');
-            } else {
-                scheduleNextMove1();
-            }
+            if (enemy1Pos === 0) enemy1Pos = 1; else if (enemy1Pos === 1) enemy1Pos = 5; else if (enemy1Pos === 5) enemy1Pos = 7;
+            playSfx('ping-red', enemy1Pos); playSfx('footstep');
+            if (isMonitorUp) { triggerStaticVisual(); updateCameraFeed(); }
+            if (enemy1Pos === 7) { attackTimer1 = setTimeout(() => attemptAttack(1, 'left'), getRandomInt(6000, 10000)); if (leftLightOn) checkDoorway('left'); }
+            else scheduleNextMove1();
         }
-
-        function scheduleNextMove2() {
-            if (!gameActive) return;
-            aiTimer2 = setTimeout(moveEnemy2, getRandomInt(9000, 20000));
-        }
-
+        
+        function scheduleNextMove2() { if (gameActive) aiTimer2 = setTimeout(moveEnemy2, getRandomInt(9000, 20000)); }
         function moveEnemy2() {
             if (!gameActive) return;
-            playSfx('footstep');
-
-            if (enemy2Pos === 0) enemy2Pos = 1; 
-            else if (enemy2Pos === 1) enemy2Pos = 3; 
-            else if (enemy2Pos === 3) enemy2Pos = 4; 
-            
-            if (isMonitorUp && !isSwitchingCam) { triggerStaticVisual(); playSfx('static'); updateCameraFeed(); }
-            
-            if (enemy2Pos === 4) {
-                attackTimer2 = setTimeout(() => attemptAttack(2, 'right'), getRandomInt(5000, 8000));
-                if (rightLightOn) checkDoorway('right');
-            } else {
-                scheduleNextMove2();
-            }
+            if (enemy2Pos === 0) enemy2Pos = 1; else if (enemy2Pos === 1) enemy2Pos = 3; else if (enemy2Pos === 3) enemy2Pos = 4;
+            playSfx('ping-orange', enemy2Pos); playSfx('footstep');
+            if (isMonitorUp) { triggerStaticVisual(); updateCameraFeed(); }
+            if (enemy2Pos === 4) { attackTimer2 = setTimeout(() => attemptAttack(2, 'right'), getRandomInt(5000, 8000)); if (rightLightOn) checkDoorway('right'); }
+            else scheduleNextMove2();
         }
 
         function attemptAttack(enemyId, side) {
             if (!gameActive) return;
-
-            if (side === 'left' && !leftDoorClosed) {
-                gameOver(">:(");
-            } else if (side === 'right' && !rightDoorClosed) {
-                gameOver("O_o");
-            } else {
+            if (side === 'left' && !leftDoorClosed) gameOver(">:(");
+            else if (side === 'right' && !rightDoorClosed) gameOver("O_o");
+            else {
                 if (enemyId === 1) { enemy1Pos = 1; scheduleNextMove1(); }
                 if (enemyId === 2) { enemy2Pos = 1; scheduleNextMove2(); }
-                
                 checkDoorway('left'); checkDoorway('right');
-                if (isMonitorUp && !isSwitchingCam) updateCameraFeed();
+                if (isMonitorUp) updateCameraFeed();
             }
         }
 
         function checkDoorway(side) {
-            let leftWay = document.getElementById('left-doorway');
-            let rightWay = document.getElementById('right-doorway');
-            let leftEnemy = document.getElementById('door-enemy-left');
-            let rightEnemy = document.getElementById('door-enemy-right');
-            
+            let lw = document.getElementById('left-doorway'), rw = document.getElementById('right-doorway');
+            let le = document.getElementById('door-enemy-left'), re = document.getElementById('door-enemy-right');
             if (side === 'left' && leftLightOn) {
-                if (enemy1Pos === 7) { 
-                    leftWay.className = "door-way doorway-danger-red"; 
-                    leftEnemy.style.opacity = '1'; 
-                    leftEnemy.innerText = ">:(";
-                } else {
-                    leftWay.className = "door-way doorway-lit"; 
-                    leftEnemy.style.opacity = '0';
-                }
+                if (enemy1Pos === 7) { lw.className = "door-way doorway-danger-red"; le.style.opacity = '1'; le.innerText = ">:("; }
+                else { lw.className = "door-way doorway-lit"; le.style.opacity = '0'; }
             } else if (side === 'right' && rightLightOn) {
-                if (enemy2Pos === 4) { 
-                    rightWay.className = "door-way doorway-danger-orange"; 
-                    rightEnemy.style.opacity = '1';
-                    rightEnemy.innerText = "O_o";
-                } else {
-                    rightWay.className = "door-way doorway-lit"; 
-                    rightEnemy.style.opacity = '0';
-                }
+                if (enemy2Pos === 4) { rw.className = "door-way doorway-danger-orange"; re.style.opacity = '1'; re.innerText = "O_o"; }
+                else { rw.className = "door-way doorway-lit"; re.style.opacity = '0'; }
             }
         }
 
         function triggerPowerOutage() {
-            leftDoorClosed = false; rightDoorClosed = false;
-            leftLightOn = false; rightLightOn = false; isMonitorUp = false;
+            leftDoorClosed = rightDoorClosed = leftLightOn = rightLightOn = isMonitorUp = false;
             stopLightHum();
-
             document.getElementById('left-door').style.height = '0%'; document.getElementById('right-door').style.height = '0%';
             document.getElementById('camera-monitor').style.display = 'none';
-            document.getElementById('left-doorway').className = "door-way doorway-dark"; document.getElementById('right-doorway').className = "door-way doorway-dark";
-            document.getElementById('door-enemy-left').style.opacity = '0'; document.getElementById('door-enemy-right').style.opacity = '0';
-            
-            document.getElementById('office').style.background = "#000"; document.querySelector('h1').style.color = "#000";
-            document.querySelectorAll('.door-panel').forEach(p => p.style.border = "1px solid #000");
-            
-            setTimeout(() => gameOver("X_X"), 4000); 
+            document.getElementById('office').style.background = "#000";
+            setTimeout(() => gameOver("X_X"), 4000);
         }
 
-        function gameOver(killerFace = ">:(") {
+        function gameOver(killerFace) {
             gameActive = false;
             clearInterval(powerInterval); clearInterval(timeInterval);
-            clearTimeout(aiTimer1); clearTimeout(attackTimer1);
-            clearTimeout(aiTimer2); clearTimeout(attackTimer2);
             stopLightHum();
-
-            playSfx('static'); 
-            
-            // Set jump-scare color based on the killer
-            let jumpscareScreen = document.getElementById('jumpscare');
-            if (killerFace === "O_o") {
-                jumpscareScreen.style.color = "var(--accent-orange)";
-                jumpscareScreen.style.textShadow = "0 0 30px var(--accent-orange)";
-            } else {
-                jumpscareScreen.style.color = "var(--accent-red)";
-                jumpscareScreen.style.textShadow = "0 0 30px red";
-            }
-            
+            let screen = document.getElementById('jumpscare');
             document.getElementById('jumpscare-face').innerText = killerFace;
-            jumpscareScreen.style.display = 'flex';
+            screen.style.display = 'flex';
+            setTimeout(() => {
+                const btn = document.createElement('button');
+                btn.className = "retry-btn"; btn.innerText = "RETRY NIGHT";
+                btn.onclick = () => location.reload();
+                document.getElementById('game-over-retry-area').appendChild(btn);
+            }, 2000);
         }
 
         function winGame() {
             gameActive = false;
             clearInterval(powerInterval); clearInterval(timeInterval);
-            clearTimeout(aiTimer1); clearTimeout(attackTimer1);
-            clearTimeout(aiTimer2); clearTimeout(attackTimer2);
-            stopLightHum();
-
             document.getElementById('win-screen').style.display = 'flex';
+            setTimeout(() => {
+                const btn = document.createElement('button');
+                btn.className = "retry-btn"; btn.innerText = "PLAY AGAIN";
+                btn.onclick = () => location.reload();
+                document.getElementById('win-retry-area').appendChild(btn);
+            }, 2000);
         }
 
-        startGame();
+        document.addEventListener('mousemove', (e) => {
+            if (isMonitorUp || !gameActive) return;
+            const offset = (0.5 - (e.clientX / window.innerWidth)) * 15;
+            document.getElementById('office').style.transform = `translateX(${offset}vw)`;
+        });
+
+        powerInterval = setInterval(drainPower, 1000);
+        timeInterval = setInterval(advanceTime, 50000);
+        scheduleNextMove1(); scheduleNextMove2();
+        document.body.addEventListener('click', () => { if(!audioCtx) playSfx(''); }, { once: true });
     </script>
 </body>
 </html>
